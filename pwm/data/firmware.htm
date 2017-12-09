@@ -1,0 +1,84 @@
+<html>
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>Обновление прошивки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <script src="script.js"></script>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+  <div id="menu"></div>
+
+  <div class="container">
+
+    <legend>Обновление прошивки</legend>
+    <form method='POST' id="formx" action="javascript:void(null);" onsubmit="call()" enctype='multipart/form-data'>
+      <div class="form-group">
+        <input type="file" name="update" class="file" require>
+        <div class="input-group">
+          <input type="text" class="form-control input-lg" disabled placeholder="Binary">
+          <span class="input-group-btn">
+                <button class="browse btn btn-primary input-lg" type="button">Выбрать</button>
+              </span>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-success" name="Update">Загрузить</button>
+      <button type="reset" class="btn btn-danger">Отмена</button>
+    </form>
+
+    <div id="msg">
+
+    </div>
+
+  </div>
+</body>
+<script>
+  $(document).on('click', '.browse', function() {
+    var file = $(this).parent().parent().parent().find('.file');
+    file.trigger('click');
+  });
+  $(document).on('change', '.file', function() {
+    $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+  });
+  $("#ale").alert();
+  $("#ale").alert("fade");
+
+  function call() {
+    var msg = new FormData($("#formx")[0]);
+
+
+    $.ajax({
+      type: 'POST',
+      url: '/update',
+      data: msg,
+      processData: false,
+      contentType: false,
+      timeout: false,
+      success: function(data) {
+        if (data === "OK") {
+          $('#msg').html("успешно");
+        }
+      },
+      error: function(xhr, str) {
+        console.log(xhr);
+        console.warn(str);
+        alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+    });
+
+  }
+</script>
+
+</html>

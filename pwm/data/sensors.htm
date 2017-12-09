@@ -1,0 +1,125 @@
+<html>
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>Датчики</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <script src="script.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://use.fontawesome.com/020bea21fd.js"></script>
+</head>
+
+<body>
+
+
+  <div id="menu"></div>
+
+  <div class="container">
+
+    <legend>Датчики</legend>
+    <div class="row" id="app">
+
+    </div>
+
+  </div>
+
+
+</body>
+<script>
+  $(document).ready(function() {
+    var icon;
+    var description;
+    var prefix;
+    $.getJSON("raw", function(data) {
+      $.each(data, function(key, val) {
+        for (var i in val) {
+          if (i == "h") {
+            icon = '<i class="fa fa-tint" aria-hidden="true"></i>';
+            description = 'Влажность(' + key + ')';
+            prefix = '%';
+          }
+          if (i == "t") {
+            icon = '<i class="fa fa-thermometer-empty" aria-hidden="true"></i>';
+            description = 'Температура(' + key + ')';
+            prefix = '°C';
+          }
+          if (i == "p") {
+            icon = '<i class="fa fa-bullseye" aria-hidden="true"></i>';
+            description = 'Давление(' + key + ')';
+            prefix = 'мм';
+          }
+          console.log("key: " + i + ", value: " + val[i]);
+          $('#app').append(
+            '<div class = "grid-box col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" > \
+            <div class = "card card-sensor" > \
+            <div class = "card-body" >' + icon + ' ' + description +
+            '<span class="badge badge-pill badge-success float-right">\
+            ' + val[i] + ' ' + prefix + '</span></div>\
+            <canvas class="chart" id="' + key + i + '" ></canvas></div></div>'
+          );
+        }
+
+        // /\$('#navbar').append('<li class="nav-item"><a class="nav-link" href="' + val.link + '">' + val.title + '</a></li>');
+
+        console.log(key);
+        console.log(val);
+      });
+      dr();
+    });
+  });
+
+  function dr() {
+    var ids = ["dhtt", "dhth", "bmpt", "bmpp", "ds_0t", "ds_1t"];
+    $.getJSON("history", function(data) {
+      $.each(data.data, function(key, val) {
+        console.log(val);
+        console.log(key);
+
+        var ctx = document.getElementById(ids[key]).getContext('2d');
+        var myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.time,
+            datasets: [{
+              label: "Unfilled",
+              fill: false,
+              borderColor: '#28a745',
+              pointBorderColor: '#28a745',
+              pointBackgroundColor: 'rgba(40,167,69,0.5)',
+
+              data: val
+            }]
+          },
+          options: {
+            responsive: false,
+            legend: {
+              display: false
+            },
+            tooltips: {
+              enabled: false
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                        callback: function (value) {
+                            return value.toFixed(1);
+                        }
+                    }
+              }],
+            },
+          }
+        });
+
+      });
+    });
+  }
+</script>
+
+</html>
