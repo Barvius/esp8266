@@ -16,11 +16,13 @@ void HTTP_init(void) {
 }
 
 void pwm_handler() {
-  if (HTTP.argName(0) == "deg") {
-    
-    myservo.write(HTTP.arg("deg").toInt());
+  if (HTTP.argName(0) == "add") {
+    pinMode(HTTP.arg("add").toInt(), OUTPUT);
     HTTP.send(200); // отправляем ответ о выполнении
-
+  }
+  if (HTTP.argName(0) == "set" && HTTP.argName(1) == "val") {
+     analogWrite(HTTP.arg("set").toInt(), HTTP.arg("val").toInt());
+    HTTP.send(200); // отправляем ответ о выполнении
   }
 }
 
