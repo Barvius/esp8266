@@ -1,0 +1,65 @@
+ <!DOCTYPE html>
+ <html lang="ru">
+
+<head>
+     <meta charset="UTF-8">
+     <title>TITLE</title>
+    <link rel="stylesheet" href="PATH">
+
+ </head>
+
+ <body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+ <script type="text/javascript">
+
+   // Create a client instance
+   client = new Paho.MQTT.Client("m23.cloudmqtt.com", 35374,"web_" + parseInt(Math.random() * 100, 10));
+   //Example client = new Paho.MQTT.Client("m11.cloudmqtt.com", 32903, "web_" + parseInt(Math.random() * 100, 10));
+
+   // set callback handlers
+   client.onConnectionLost = onConnectionLost;
+   client.onMessageArrived = onMessageArrived;
+   var options = {
+     useSSL: true,
+     userName: "zhytlzeu",
+     password: "nxYvBqDOc3TP",
+     onSuccess:onConnect,
+     onFailure:doFail
+   }
+
+   // connect the client
+   client.connect(options);
+
+   // called when the client connects
+   function onConnect() {
+     // Once a connection has been made, make a subscription and send a message.
+     console.log("onConnect");
+     for (var i = 0; i < 4; i++) {
+       client.subscribe("Light/"+(i+1));
+
+    }
+     message = new Paho.MQTT.Message("Hello CloudMQTT");
+     message.destinationName = "Info";
+     client.send(message);
+   }
+
+   function doFail(e){
+     console.log(e);
+   }
+
+   // called when the client loses its connection
+   function onConnectionLost(responseObject) {
+     if (responseObject.errorCode !== 0) {
+       console.log("onConnectionLost:"+responseObject.errorMessage);
+     }
+   }
+
+   // called when a message arrives
+   function onMessageArrived(message) {
+     console.log(message.destinationName+" >> "+message.payloadString);
+   }
+ </script>
+ </body>
+
+ </html>

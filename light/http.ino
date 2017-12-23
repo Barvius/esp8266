@@ -3,26 +3,45 @@ void HTTP_init(void) {
   HTTP.on("/system_info", system_info_handler);
   HTTP.on("/available_networks", available_networks_handler);
  HTTP.on("/io", gpio_handler);
+ HTTP.on("/mqtt", config_mqtt_handler);
   update();
   HTTP.begin();
 }
 
+void config_mqtt_handler() {
+  if (HTTP.argName(0) == "server" && HTTP.argName(1) == "port" && HTTP.argName(2) == "user" && HTTP.argName(3) == "password") {
+    M_Server = HTTP.arg("server");
+    M_Port = HTTP.arg("port").toInt();
+    M_User = HTTP.arg("user");
+    M_Password = HTTP.arg("password");
+    saveConfig();
+    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+  }
+  if (HTTP.argName(0) == "TopicNum" && HTTP.argName(1) == "TopicName") {
+    GpioTopics[HTTP.arg("TopicNum").toInt()]= HTTP.arg("TopicName");
+    saveConfig();
+    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+  }
+  //HTTP.send(404, "text/plain", "ERR"); // отправляем ответ о выполнении
+}
+
 void gpio_handler() {
   if (HTTP.args() == 0) {
-      String json = "{";
+      String json = "[";
      for(int i=0; i<4;i++){
-       json += "\"l";
-       json += i+1;
-       json += "\":";
+       json += "[";
       json += GpioLevel[digitalRead(GpioList[i])];
+      json += ",\"";
+      json += GpioDescription[i];
+      
       if(i != 3){
-      json += ",";
+      json += "\"],";
       }else {
-          json += "";
+          json += "\"]";
       }
      }
       
-      json += "}";
+      json += "]";
   HTTP.send(200, "text/json", json);
    
   }
