@@ -1,0 +1,252 @@
+<html>
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>Настройки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://use.fontawesome.com/020bea21fd.js"></script>
+</head>
+
+<body>
+  <div id="menu"></div>
+
+
+  <!-- Modal -->
+  <div class="modal fade bd-example-modal-sm" id="alert" tabindex="-1" role="dialog" aria-labelledby="alertLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+
+        <div class="modal-body">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="container">
+
+    <legend>Настройки</legend>
+    <div class="row">
+      <!-- <div class="grid-box col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            Сеть
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="exampleFormControlSelect1">ssid</label>
+              <select class="form-control" id="wifi_ssid">
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">password</label>
+              <input type="email" class="form-control" id="wifi_psk" placeholder="Пароль">
+            </div>
+          </div>
+        </div>
+      </div> -->
+      <div class="grid-box col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            Система
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="exampleInputEmail1">Hostname</label>
+              <input type="email" class="form-control" id="hostname" aria-describedby="emailHelp" placeholder="Hostname">
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlSelect1">Timezone</label>
+              <!-- <select class="form-control" id="timezone" onchange="send('nm','interval',this.value);"> -->
+              <select class="form-control" id="timezone">
+            <option value="1">Калининград</option>
+            <option value="3">Минск</option>
+            <option value="3">Москва</option>
+          </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-box col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            Датчики
+          </div>
+          <div class="card-body">
+            <div class="form-check">
+              <label class="custom-control custom-checkbox">
+        		  <input type="checkbox" class="custom-control-input" id="ds_en" onchange="send('ds','en',this.checked);">
+        		  <span class="custom-control-indicator"></span>
+        		  <span class="custom-control-description">ds18b20</span>
+        		</label>
+            </div>
+            <div class="form-check">
+              <label class="custom-control custom-checkbox">
+        		  <input type="checkbox" class="custom-control-input" id="dht_en" onchange="send('dht','en',this.checked);">
+        		  <span class="custom-control-indicator"></span>
+        		  <span class="custom-control-description">dht11</span>
+        		</label>
+            </div>
+            <div class="form-check">
+              <label class="custom-control custom-checkbox">
+        		  <input type="checkbox" class="custom-control-input" id="bmp_en" onchange="send('bmp','en',this.checked);">
+        		  <span class="custom-control-indicator"></span>
+        		  <span class="custom-control-description">bmp180</span>
+        		</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-box col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            Сервисы
+          </div>
+          <div class="card-body">
+            <div class="form-check">
+              <label class="custom-control custom-checkbox">
+        		  <input type="checkbox" class="custom-control-input" id="nm_en" onchange="send('nm','en',this.checked);">
+        		  <span class="custom-control-indicator"></span>
+        		  <span class="custom-control-description">Narodmon</span>
+        		</label>
+              <div class="form-group">
+                <label for="exampleFormControlSelect1">Период отправки данных</label>
+                <select class="form-control" id="nm_interval" onchange="send('nm','interval',this.value);">
+              <option value="300000">5 мин</option>
+              <option value="600000">10 мин</option>
+              <option value="900000">15 мин</option>
+            </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-box col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            Прошивка
+          </div>
+          <div class="card-body">
+            <form method='POST' id="formx" action="javascript:void(null);" onsubmit="fw_update()" enctype='multipart/form-data'>
+              <div class="form-group">
+                <input type="file" name="update" class="file" require>
+                <div class="input-group">
+                  <input type="text" class="form-control input-lg" disabled placeholder="Binary">
+                  <span class="input-group-btn">
+                        <button class="browse btn btn-primary input-lg" type="button">Выбрать</button>
+                      </span>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-success" name="Update">Загрузить</button>
+              <button type="reset" class="btn btn-danger">Отмена</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+<script src="script.js"></script>
+<script>
+  $('#alert').modal({
+    "backdrop": "static"
+  });
+  $(document).on('click', '.browse', function() {
+    var file = $(this).parent().parent().parent().find('.file');
+    file.trigger('click');
+  });
+  $(document).on('change', '.file', function() {
+    $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+  });
+
+  function fw_update() {
+    var msg = new FormData($("#formx")[0]);
+    $('#alert').modal('show');
+    $.ajax({
+      type: 'POST',
+      url: '/update',
+      data: msg,
+      processData: false,
+      contentType: false,
+      timeout: false,
+      success: function(data) {
+        if (data == "OK") {
+          $('#alert').modal('hide');
+        }
+      },
+      error: function(xhr, str) {
+        console.log(xhr);
+        console.warn(str);
+        // alert('Возникла ошибка: ' + xhr.responseCode);
+      }
+    });
+  }
+
+  function send(tag, atr, val) {
+
+    console.log(val);
+    if (atr == "en") {
+      val == true ? val = 1 : val = 0;
+    }
+    $('#alert').modal('show');
+    $.ajax({
+      url: '/' + tag,
+      type: 'GET',
+      data: atr + '=' + val,
+      success: function(data) {
+        if (data == "OK") {
+
+        }
+      }
+    });
+    $('#alert').modal('hide');
+  }
+
+  $(document).ready(function() {
+    $('#alert').modal('show');
+    var icon;
+    var description;
+    var prefix;
+    $.getJSON("config.json", function(data) {
+      $.each(data, function(key, val) {
+        if (key == "hostname") {
+          $('#' + key).val(val);
+        } else
+        if (key == "timezone") {
+          $('#' + key).val(val).trigger("chosen:updated");
+        }
+        if (key == "nm_interval") {
+          $('#' + key).val(val).trigger("chosen:updated");
+        } else {
+
+          $('#' + key).prop('checked', val);
+        }
+
+
+        // /\$('#navbar').append('<li class="nav-item"><a class="nav-link" href="' + val.link + '">' + val.title + '</a></li>');
+
+        console.log(key);
+        console.log(val);
+      });
+      $('#alert').modal('hide');
+    });
+
+    $.getJSON("available_networks", function(data) {
+      $.each(data, function(key, val) {
+        $('#wifi_ssid').append(new Option(val.ssid, val.ssid));
+        });
+    });
+  });
+</script>
+
+</html>
