@@ -15,7 +15,6 @@
 
 int GpioList[] = {4, 5, 13, 12};
 int GpioLevel[] = {HIGH, LOW};
-String GpioDescription[] = {"Свет 1", "Свет 2", "Свет 3", "Свет 4"};
 
 String M_Server;
 int M_Port;
@@ -23,7 +22,7 @@ String M_User;
 String M_Password;
 
 String GpioTopics[PORT];
-
+String GpioDescription[PORT];
 
 //ESP8266HTTPUpdateServer httpUpdater;
 // Web интерфейс для устройства
@@ -34,7 +33,33 @@ PubSubClient client(wclient);
 // Для файловой системы
 File fsUploadFile;
 
+void mqttConnect(){
+   if (WiFi.status() == WL_CONNECTED) {
+    if (!client.connected()) {
 
+      if (client.connect(MQTT::Connect(WiFi.macAddress()).set_auth(M_User, M_Password))) {
+        Serial.println("Connected to MQTT server ");
+        for (int i = 0; i < PORT; i++) {
+          client.subscribe(String("IO/"+GpioTopics[i]+"/value"));
+        }
+         client.subscribe("Debug");
+      } else {
+        Serial.println("Could not connect to MQTT server");
+      }
+    }
+  }
+
+  String Sys = WiFi.macAddress();
+  Sys += " -- ";
+  Sys += WiFi.localIP().toString();
+  Sys += " -- (";
+  Sys += WiFi.RSSI();
+  Sys += ")";
+  client.publish("Info", Sys);
+  for (int i = 0; i < PORT; i++) {
+    client.publish(String("IO/"+GpioTopics[i]+"/value"), String(GpioLevel[digitalRead(GpioList[i])]));
+  }
+}
 
 void setup() {
   // Настраиваем вывод отладки
@@ -57,37 +82,9 @@ void setup() {
 
   FS_init();
   loadConfig();
+
   client.set_server(M_Server, M_Port);
   client.set_callback(callback);
-
-  if (WiFi.status() == WL_CONNECTED) {
-    if (!client.connected()) {
-
-      if (client.connect(MQTT::Connect("arduinoClient2").set_auth(M_User, M_Password))) {
-        Serial.println("Connected to MQTT server ");
-
-        // подписываемся под топики
-        client.subscribe(GpioTopics[0]);
-        client.subscribe(GpioTopics[1]);
-        client.subscribe(GpioTopics[2]);
-        client.subscribe(GpioTopics[3]);
-      } else {
-        Serial.println("Could not connect to MQTT server");
-      }
-    }
-  }
-
-  String Sys = WiFi.macAddress();
-  Sys += " -- ";
-  Sys += WiFi.localIP().toString();
-  Sys += " -- (";
-  Sys += WiFi.RSSI();
-  Sys += ")";
-  client.publish("Info", Sys);
-  //for (int i = 0; i < PORT; i++) {
-  //  client.publish(GpioTopics[i], String(GpioLevel[digitalRead(GpioList[i])]));
-  //}
-
 
   //WiFi.hostname(Hostname);
 
@@ -97,23 +94,19 @@ void setup() {
 }
 
 
-int tm = 300;
-float temp = 0;
+unsigned long timer = 0;
 
-// Функция отправки показаний
 void refreshData() {
-  if (tm == 0) {
-    for (int i = 0; i < PORT; i++) {
-      client.publish(GpioTopics[i], String(GpioLevel[digitalRead(GpioList[i])]));
-    }
-    tm = 5000; // пауза меду отправками 3 секунды
-  }
-  tm--;
-
-  delay(1);
+  //if (millis() - timer > 5000) {
+  //  for (int i = 0; i < PORT; i++) {
+  //    client.publish(GpioTopics[i], String(GpioLevel[digitalRead(GpioList[i])]));
+  //  }
+  //  timer=millis();
+  //}
 }
 
 // Функция получения данных от сервера
+//void callback(const MQTT::Publish& pub)
 void callback(const MQTT::Publish& pub)
 {
   String payload = pub.payload_string();
@@ -122,15 +115,20 @@ void callback(const MQTT::Publish& pub)
   Serial.print(pub.topic()); // выводим в сериал порт название топика
   Serial.print(" => ");
   Serial.println(payload); // выводим в сериал порт значение полученных данных
-
+  if(topic == "Debug" && payload == "GetNames"){
+      for (int i = 0; i < PORT; i++) {
+    client.publish(String("IO/"+GpioTopics[i]+"/name"), GpioDescription[i]);
+      }
+  }
+   if(topic == "Debug" && payload == "GetValues"){
+      for (int i = 0; i < PORT; i++) {
+    client.publish(String("IO/"+GpioTopics[i]+"/value"), String(GpioLevel[digitalRead(GpioList[i])]));
+      }
+  }
   // проверяем из нужного ли нам топика пришли данные
   for (int i = 0; i < PORT; i++) {
-    if (topic == GpioTopics[i]) {
-      Serial.println(GpioTopics[i]); // выводим в сериал порт подтверждение, что мы получили топик test/2
+    if (topic == String("IO/"+GpioTopics[i]+"/value")) {
       digitalWrite(GpioList[i], GpioLevel[payload.toInt()]);
-      //if(GpioLevel[digitalRead(GpioList[i])] != GpioLevel[payload.toInt()]){
-      //   client.publish(topic, payload);
-      //}
     }
   }
 }
@@ -142,6 +140,8 @@ void loop() {
   if (client.connected()) {
     client.loop();
     refreshData();
+  } else {
+    mqttConnect();
   }
 
 

@@ -31,11 +31,14 @@ bool loadConfig() {
   M_Port = root["M_Port"];
   M_User = root["M_User"].as<String>();
   M_Password = root["M_Password"].as<String>();
-  GpioTopics[0] = root["GpioTopics_0"].as<String>();
-  GpioTopics[1] = root["GpioTopics_1"].as<String>();
-  GpioTopics[2] = root["GpioTopics_2"].as<String>();
-  GpioTopics[3] = root["GpioTopics_3"].as<String>();
-
+  GpioTopics[0] = root["IO_topic_0"].as<String>();
+  GpioTopics[1] = root["IO_topic_1"].as<String>();
+  GpioTopics[2] = root["IO_topic_2"].as<String>();
+  GpioTopics[3] = root["IO_topic_3"].as<String>();
+  GpioDescription[0] = root["IO_description_0"].as<String>();
+  GpioDescription[1] = root["IO_description_1"].as<String>();
+  GpioDescription[2] = root["IO_description_2"].as<String>();
+  GpioDescription[3] = root["IO_description_3"].as<String>();
   return true;
 }
 
@@ -50,11 +53,14 @@ bool saveConfig() {
   json["M_Port"] = M_Port;
   json["M_User"] = M_User;
   json["M_Password"] = M_Password;
-  json["GpioTopics_0"] =  GpioTopics[0];
-  json["GpioTopics_1"] =  GpioTopics[1];
-  json["GpioTopics_2"] =  GpioTopics[2];
-  json["GpioTopics_3"] =  GpioTopics[3];
-
+  json["IO_topic_0"] =  GpioTopics[0];
+  json["IO_topic_1"] =  GpioTopics[1];
+  json["IO_topic_2"] =  GpioTopics[2];
+  json["IO_topic_3"] =  GpioTopics[3];
+  json["IO_description_0"] =  GpioDescription[0];
+  json["IO_description_1"] =  GpioDescription[1];
+  json["IO_description_2"] =  GpioDescription[2];
+  json["IO_description_3"] =  GpioDescription[3];
   // Помещаем созданный json в глобальную переменную json.printTo(jsonConfig);
   json.printTo(jsonConfig);
   // Открываем файл для записи

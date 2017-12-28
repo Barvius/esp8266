@@ -17,8 +17,9 @@ void config_mqtt_handler() {
     saveConfig();
     HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
-  if (HTTP.argName(0) == "TopicNum" && HTTP.argName(1) == "TopicName") {
-    GpioTopics[HTTP.arg("TopicNum").toInt()]= HTTP.arg("TopicName");
+  if (HTTP.argName(0) == "Index" && HTTP.argName(1) == "TopicNum" && HTTP.argName(2) == "TopicDescription") {
+    GpioTopics[HTTP.arg("Index").toInt()]= HTTP.arg("TopicNum");
+    GpioDescription[HTTP.arg("Index").toInt()]= HTTP.arg("TopicDescription");
     saveConfig();
     HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
@@ -32,7 +33,7 @@ void gpio_handler() {
        json += "[";
       json += GpioLevel[digitalRead(GpioList[i])];
       json += ",\"";
-      json += GpioDescription[i];
+     // json += GpioDescription[i];
       
       if(i != 3){
       json += "\"],";
