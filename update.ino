@@ -1,12 +1,12 @@
 void update(void){
  //Обновление
-  HTTP.on("/update", HTTP_POST, []() {
-    HTTP.sendHeader("Connection", "close");
-    HTTP.sendHeader("Access-Control-Allow-Origin", "*");
-    HTTP.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+  server.on("/update", HTTP_POST, []() {
+    server.sendHeader("Connection", "close");
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
     ESP.restart();
   }, []() {
-    HTTPUpload& upload = HTTP.upload();
+    HTTPUpload& upload = server.upload();
     if (upload.status == UPLOAD_FILE_START) {
       Serial.setDebugOutput(true);
       WiFiUDP::stopAll();

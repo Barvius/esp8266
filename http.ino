@@ -1,37 +1,32 @@
-void HTTP_init(void) {
-  HTTP.on("/restart", restart);
-  HTTP.on("/system_info", system_info_handler);
-  HTTP.on("/available_networks", available_networks_handler);
- HTTP.on("/io", gpio_handler);
- HTTP.on("/mqtt", config_mqtt_handler);
+void server_init(void) {
+  server.on("/restart", restart);
+  server.on("/system_info", system_info_handler);
+  server.on("/available_networks", available_networks_handler);
+ server.on("/io", gpio_handler);
+ server.on("/mqtt", config_mqtt_handler);
   update();
-  HTTP.begin();
+  server.begin();
 }
 
 void config_mqtt_handler() {
-  if (HTTP.argName(0) == "server" && HTTP.argName(1) == "port" && HTTP.argName(2) == "user" && HTTP.argName(3) == "password") {
-    M_Server = HTTP.arg("server");
-    M_Port = HTTP.arg("port").toInt();
-    M_User = HTTP.arg("user");
-    M_Password = HTTP.arg("password");
+  if (server.argName(0) == "server" && server.argName(1) == "port" && server.argName(2) == "user" && server.argName(3) == "password") {
+    M_Server = server.arg("server");
+    M_Port = server.arg("port").toInt();
+    M_User = server.arg("user");
+    M_Password = server.arg("password");
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
-  if (HTTP.argName(0) == "Index" && HTTP.argName(1) == "TopicNum" && HTTP.argName(2) == "TopicDescription") {
-    GpioTopics[HTTP.arg("Index").toInt()]= HTTP.arg("TopicNum");
-    GpioDescription[HTTP.arg("Index").toInt()]= HTTP.arg("TopicDescription");
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
-  }
-  //HTTP.send(404, "text/plain", "ERR"); // отправляем ответ о выполнении
+  
+  //server.send(404, "text/plain", "ERR"); // отправляем ответ о выполнении
 }
 
 void gpio_handler() {
-  if (HTTP.args() == 0) {
+  if (server.args() == 0) {
       String json = "[";
      for(int i=0; i<4;i++){
        json += "[";
-      json += GpioLevel[digitalRead(GpioList[i])];
+      //json += GpioLevel[digitalRead(GpioList[i])];
       json += ",\"";
      // json += GpioDescription[i];
       
@@ -43,12 +38,12 @@ void gpio_handler() {
      }
       
       json += "]";
-  HTTP.send(200, "text/json", json);
+  server.send(200, "text/json", json);
    
   }
-  if (HTTP.argName(0) == "set" && HTTP.argName(1) == "val") {
-     digitalWrite(GpioList[HTTP.arg("set").toInt()], GpioLevel[HTTP.arg("val").toInt()]);
-    HTTP.send(200); // отправляем ответ о выполнении
+  if (server.argName(0) == "set" && server.argName(1) == "val") {
+     //digitalWrite(GpioList[server.arg("set").toInt()], GpioLevel[server.arg("val").toInt()]);
+    server.send(200); // отправляем ответ о выполнении
   }
 }
 
@@ -92,11 +87,11 @@ void available_networks_handler() {
     }
   }
   json += "]";
-  HTTP.send(200, "text/json", json);
+  server.send(200, "text/json", json);
 }
 
 void restart() {
-  HTTP.send(200, "text / plain", "Reset OK");
+  server.send(200, "text / plain", "Reset OK");
   ESP.restart();
 }
 
@@ -115,25 +110,25 @@ void system_info_handler() {
   json += ",\"vcc\":";
   json +=  ESP.getVcc();
   json += "}";
-  HTTP.send(200, "text/json", json);
+  server.send(200, "text/json", json);
 }
 /*
 void pwm_handler() {
-  if (HTTP.argName(0) == "add") {
-    pinMode(HTTP.arg("add").toInt(), OUTPUT);
-    HTTP.send(200); // отправляем ответ о выполнении
+  if (server.argName(0) == "add") {
+    pinMode(server.arg("add").toInt(), OUTPUT);
+    server.send(200); // отправляем ответ о выполнении
   }
-  if (HTTP.argName(0) == "set" && HTTP.argName(1) == "val") {
-     analogWrite(HTTP.arg("set").toInt(), HTTP.arg("val").toInt());
-    HTTP.send(200); // отправляем ответ о выполнении
+  if (server.argName(0) == "set" && server.argName(1) == "val") {
+     analogWrite(server.arg("set").toInt(), server.arg("val").toInt());
+    server.send(200); // отправляем ответ о выполнении
   }
 }
 
 void servo_handler() {
-  if (HTTP.argName(0) == "deg") {
+  if (server.argName(0) == "deg") {
     
-    myservo.write(HTTP.arg("deg").toInt());
-    HTTP.send(200); // отправляем ответ о выполнении
+    myservo.write(server.arg("deg").toInt());
+    server.send(200); // отправляем ответ о выполнении
 
   }
 }
@@ -169,7 +164,7 @@ void history_handler() {
   }
   json += "]";
   json += "}";
-  HTTP.send(200, "text/json", json);
+  server.send(200, "text/json", json);
 }
 
 void available_networks_handler() {
@@ -212,11 +207,11 @@ void available_networks_handler() {
     }
   }
   json += "]";
-  HTTP.send(200, "text/json", json);
+  server.send(200, "text/json", json);
 }
 
 void restart() {
-  HTTP.send(200, "text / plain", "Reset OK");
+  server.send(200, "text / plain", "Reset OK");
   ESP.restart();
 }
 
@@ -235,54 +230,54 @@ void system_info_handler() {
   json += ",\"vcc\":";
   json +=  ESP.getVcc();
   json += "}";
-  HTTP.send(200, "text/json", json);
+  server.send(200, "text/json", json);
 }
 
 void hostname_config() {
-  if (HTTP.argName(0) == "name") {
-    Hostname = HTTP.arg("name");
+  if (server.argName(0) == "name") {
+    Hostname = server.arg("name");
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
     ESP.restart();
   }
 }
 void ds_config() {
-  if (HTTP.argName(0) == "en") {
-    DS_EN = HTTP.arg("en").toInt();
+  if (server.argName(0) == "en") {
+    DS_EN = server.arg("en").toInt();
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
 }
 void dht_config() {
-  if (HTTP.argName(0) == "en") {
-    DHT_EN = HTTP.arg("en").toInt();
+  if (server.argName(0) == "en") {
+    DHT_EN = server.arg("en").toInt();
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
 }
 void bmp_config() {
-  if (HTTP.argName(0) == "en") {
-    BMP_EN = HTTP.arg("en").toInt();
+  if (server.argName(0) == "en") {
+    BMP_EN = server.arg("en").toInt();
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
 }
 
 void nm_config() {
-  if (HTTP.argName(0) == "en") {
-    NM_EN = HTTP.arg("en").toInt();
+  if (server.argName(0) == "en") {
+    NM_EN = server.arg("en").toInt();
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
-  if (HTTP.argName(0) == "interval") {
-    NM_INTERVAL = HTTP.arg("interval").toInt();
+  if (server.argName(0) == "interval") {
+    NM_INTERVAL = server.arg("interval").toInt();
     saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+    server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
 }
 */
 //void handle_Set_DS18b20_Pin() {
-//  DS18B20_PIN = HTTP.arg("pin").toInt(); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
+//  DS18B20_PIN = server.arg("pin").toInt(); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
 //  saveConfig();                 // Функция сохранения данных во Flash пока пустая
-//  HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+//  server.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
 //}
