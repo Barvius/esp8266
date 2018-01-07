@@ -31,15 +31,46 @@ bool loadConfig() {
   M_Port = root["M_Port"];
   M_User = root["M_User"].as<String>();
   M_Password = root["M_Password"].as<String>();
-  GpioTopics[0] = root["IO_topic_0"].as<String>();
-  GpioTopics[1] = root["IO_topic_1"].as<String>();
-  GpioTopics[2] = root["IO_topic_2"].as<String>();
-  GpioTopics[3] = root["IO_topic_3"].as<String>();
-  GpioDescription[0] = root["IO_description_0"].as<String>();
-  GpioDescription[1] = root["IO_description_1"].as<String>();
-  GpioDescription[2] = root["IO_description_2"].as<String>();
-  GpioDescription[3] = root["IO_description_3"].as<String>();
+  String a = root["Thermostat_DEV"].as<String>();
+  String b;
+  for (int i = 0; i < 8; i++) {
+    b = a[i * 2];
+    b += a[i * 2 + 1];
+    Serial.print(b);
+    Thermostat_DEV[i] = hexToDec(b);
+  } 
+  Thermostat_MAX = root["Thermostat_MAX"];
+  Thermostat_MIN = root["Thermostat_MIN"];
+  Thermostat_EN = root["Thermostat_EN"];
+  Thermostat_Alarm_MAX = root["Thermostat_Alarm_MAX"];
+  Thermostat_Alarm_EN = root["Thermostat_Alarm_EN"];
+  //Serial.println();
+  //for (int i = 0; i < 8; i++) {
+  //    if (Thermostat_DEV[i] < 16)  Serial.print("0");
+  //    Serial.print(Thermostat_DEV[i], HEX);
+  //  }
+  //  Serial.println();
+  //DeviceAddress SystemSensor = { 0x28, 0xFF, 0x77, 0xC9, 0x74, 0x16, 0x04, 0x88 };
+  //  for (int i = 0; i < 8; i++) {
+  //    if (SystemSensor[i] < 16)    Serial.print("0");
+  //    Serial.print(SystemSensor[i], HEX);
+  //  }
+  //   Serial.println();
   return true;
+}
+
+unsigned long hexToDec(String hexString) {
+  unsigned long ret;
+  for (int i = 0, n = hexString.length(); i != n; ++i) {
+    char ch = hexString[i];
+    int val = 0;
+    if ('0' <= ch && ch <= '9')      val = ch - '0';
+    else if ('a' <= ch && ch <= 'f') val = ch - 'a' + 10;
+    else if ('A' <= ch && ch <= 'F') val = ch - 'A' + 10;
+    else continue; // skip non-hex characters
+    ret = ret * 16 + val;
+  }
+  return ret;
 }
 
 // Запись данных в файл config.json
@@ -53,14 +84,21 @@ bool saveConfig() {
   json["M_Port"] = M_Port;
   json["M_User"] = M_User;
   json["M_Password"] = M_Password;
-  json["IO_topic_0"] =  GpioTopics[0];
-  json["IO_topic_1"] =  GpioTopics[1];
-  json["IO_topic_2"] =  GpioTopics[2];
-  json["IO_topic_3"] =  GpioTopics[3];
-  json["IO_description_0"] =  GpioDescription[0];
-  json["IO_description_1"] =  GpioDescription[1];
-  json["IO_description_2"] =  GpioDescription[2];
-  json["IO_description_3"] =  GpioDescription[3];
+  String tmp = "";
+  String t = "";
+  for (int i = 0; i < 8; i++) {
+    t = String(Thermostat_DEV[i], HEX);
+    while ( t.length() < 2)  t = "0" +  t;
+    tmp += t;
+  }
+  json["Thermostat_DEV"] = tmp;
+  json["Thermostat_MAX"] = Thermostat_MAX;
+  json["Thermostat_MIN"] = Thermostat_MIN;
+  json["Thermostat_EN"] = Thermostat_EN;
+  json["Thermostat_Alarm_MAX"] = Thermostat_Alarm_MAX;
+  json["Thermostat_Alarm_EN"] = Thermostat_Alarm_EN;
+
+
   // Помещаем созданный json в глобальную переменную json.printTo(jsonConfig);
   json.printTo(jsonConfig);
   // Открываем файл для записи
