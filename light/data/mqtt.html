@@ -14,7 +14,7 @@
  <script type="text/javascript">
 
    // Create a client instance
-   client = new Paho.MQTT.Client("m23.cloudmqtt.com", 35374,"web_" + parseInt(Math.random() * 100, 10));
+   client = new Paho.MQTT.Client("m23.cloudmqtt.com", ,"web_" + parseInt(Math.random() * 100, 10));
    //Example client = new Paho.MQTT.Client("m11.cloudmqtt.com", 32903, "web_" + parseInt(Math.random() * 100, 10));
 
    // set callback handlers
@@ -22,8 +22,8 @@
    client.onMessageArrived = onMessageArrived;
    var options = {
      useSSL: true,
-     userName: "zhytlzeu",
-     password: "nxYvBqDOc3TP",
+     userName: "",
+     password: "",
      onSuccess:onConnect,
      onFailure:doFail
    }
